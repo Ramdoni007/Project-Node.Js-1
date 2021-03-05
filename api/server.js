@@ -5,6 +5,8 @@ const { ObjectId } = require('mongodb');
 const app = express();
 const port = 3001; 
 
+const routes = require('./route')
+
 
 //Database Nya Nih 
 
@@ -23,6 +25,15 @@ app.use(bodyParser.urlencoded({extended:true}));
 //   const db = client.db(dbName);
 //   client.close();
 // });
+
+
+MongoClient.connect(url,(err,client) => { 
+  const db = client.db(dbName); 
+  const notesCollection = db.collection('notes') ; 
+
+  app.locals.notesCollection = notesCollection;
+
+})
 
 
 
@@ -70,29 +81,59 @@ app.get('/note/:id', (req,res) => {
     // Cari note sesuai idnote
     notesCollection.findOne({_id: ObjectId (req.params.id)}).then((result) => { 
       res.status(200).json(result)
-    } )
-
+    }) 
     client.close()
   })
-  res.status(200).json('Data Sukses Untuk Di Update')
 })
 
+app.put('/note/:id', (req, res) => {
+  MongoClient.connect(url, (err, client) => {
+    const db = client.db(dbName);
+    const notesCollection = db.collection('notes');
+    // Cara update data collection
+    notesCollection
+      .updateOne({ _id: ObjectId(req.params.id) }, { $set: { title: req.body.title, note: req.body.note } })
+      .then((result) => {
+        console.log(result);
+      });
+    client.close();
+  });
+  res.status(200).json('Data successfully updated');
+});
+
+
+// Cara Deleted Data 
+
+app.delete('/note/:id', (req, res) => {
+  MongoClient.connect(url, (err, client) => {
+    const db = client.db(dbName);
+    const notesCollection = db.collection('notes');
+    // Cara update data collection Sesuai ID 
+    notesCollection.deleteOne({ _id: ObjectId(req.params.id) }).then((result) => {
+      console.log(result);
+    });
+    client.close();
+  });
+  res.status(200).json('Data successfully deleted');
+});
 
 
 
-app.get('/notes', (req, res) => {
-    res.send('Receive GET request');
-  });
 
-  app.get('/note/:id', (req, res) => {
-    res.send('Received GET request with parameter');
-  });
-  app.put('/note/:id', (req, res) => {
-    res.send('Received PUT request');
-  });
-  app.delete('/note/:id', (req, res) => {
-    res.send('Received DELETE request');
-  });
+
+// app.get('/notes', (req, res) => {
+//     res.send('Receive GET request');
+//   });
+
+//   app.get('/note/:id', (req, res) => {
+//     res.send('Received GET request with parameter');
+//   });
+//   app.put('/note/:id', (req, res) => {
+//     res.send('Received PUT request');
+//   });
+//   app.delete('/note/:id', (req, res) => {
+//     res.send('Received DELETE request');
+//   });
 
 
 app.listen(port,() => { 
