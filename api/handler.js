@@ -34,16 +34,16 @@ exports.getNote = ((req,res) => {
     }) ; 
 });
 
-exports.updateNote = ((req,res) => { 
-    const {notesCollection} = req.app.locals; 
-
-    // Kode Untuk Update Data Collections 
-    notesCollection 
-    .updateNote({_id:ObjectID(req.params.id)}, {$set: {title:req.body.title, note:req.body.note}});  
-    .then ((result) => { 
+exports.updateNote = (req, res) => {
+    const { notesCollection } = req.app.locals;
+    // update data collection
+    notesCollection
+      .updateOne({ _id: ObjectId(req.params.id) }, { $set: { title: req.body.title, note: req.body.note } })
+      .then((result) => {
         console.log(result);
-    });
-}) ;
+      });
+    res.status(200).json('Data successfully updated');
+  };
 
 
 exports.deleteNote = ((req,res) => { 
