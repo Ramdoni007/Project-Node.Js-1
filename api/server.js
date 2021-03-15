@@ -5,6 +5,7 @@ const app = express();
 const port = 3001; 
 
 const routes = require('./route')
+const handlerErrors = require('./middlewares/errorHandlers')
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -18,6 +19,7 @@ MongoClient.connect(url, (err, client) => {
   app.locals.notesCollection = notesCollection;
 });
 // Routes
+app.use(handlerErrors);
 app.use('/', routes);
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
