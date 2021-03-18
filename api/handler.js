@@ -1,57 +1,63 @@
 const { ObjectID } = require('bson');
 const {ObjectId} = require('mongodb');
 
-exports.addNote = ((req,res) => { 
-    const{notesCollection} = req.app.locals;
-    // Code Untuk Mencaru Data Ke Collections
-
-    notesCollection.insertOne(req.body).then((result) => { 
-        console.log(result);
-    }); 
-    res.status(200).json('Data Berhasil di Simpan Ya:)');
-});
-
-
-exports.getAllNotes = ((req,res) => { 
-    const {notesCollection} = req.app.locals;
-
-    // kode mencari semua notes 
-    notesCollection
-    .find()
-    .toArray()
-    .then((result) => { 
-        res.status(200).json(result);
-    });
-});
-
-
-exports.getNote = ((req,res) => { 
-    const {notesCollection} = req.app.locals;
-
-    // kode Mencari Notes Seusai dengan Id : 
-    notesCollection.findOne({_id:ObjectId(req.params.id)}).then((result)=> { 
-        res.status(200).json(result);
-    }) ; 
-});
-
-exports.updateNote = (req, res) => {
+exports.addNote = async (req, res, next) => {
     const { notesCollection } = req.app.locals;
-    // update data collection
-    notesCollection
-      .updateOne({ _id: ObjectId(req.params.id) }, { $set: { title: req.body.title, note: req.body.note } })
-      .then((result) => {
-        console.log(result);
-      });
-    res.status(200).json('Data successfully updated');
+    const { title } = req.body;
+    try {
+      if (!title) {
+        throw new Error('title is missing');
+      }
+      // Insert data to collection
+      const result = await notesCollection.insertOne(req.body);
+      console.log(result);
+      res.status(200).json('Data successfully saved');  
+    } catch (error) {
+      next(error);
+    }
   };
-
-
-exports.deleteNote = ((req,res) => { 
-    const {notesCollection} = req.app.locals; 
-
-    // Kode Untuk Mendelete Data Collections 
-    notesCollection.deleteOne({_id:ObjectID(req.params.id)}).then((result)=> { 
-        console.log(result);
-    });
-    res.status(200).json(' Yeyyyy Data Berhasil di Hapus')
-});
+  exports.getAllNotes = async (req, res, next) => {
+    const { notesCollection } = req.app.locals;
+    try {
+      // find all Notes
+      const result = await notesCollection.find().toArray();
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+  exports.getNote = async (req, res, next) => {
+    const { notesCollection } = req.app.locals;
+    try {
+      // find Notes based on id
+      const result = await notesCollection.findOne({ _id: ObjectId(req.params.id) });
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+  exports.updateNote = async (req, res, next) => {
+    const { notesCollection } = req.app.locals;
+    try {
+      // update data collection
+      const result = await notesCollection.updateOne(
+        { _id: ObjectId(req.params.id) },
+        { $set: { title: req.body.title, note: req.body.note } }
+      );
+      console.log(result);
+      res.status(200).json('Data successfully updated');
+    } catch (error) {
+      next(error);
+    }
+  };
+  exports.deleteNote = async (req, res, next) => {
+    const { notesCollection } = req.app.locals;
+    try {
+      // delete data collection
+      const result = await notesCollection.deleteOne({ _id: ObjectId(req.params.id) });
+      console.log(result);
+      res.status(200).json('Data successfully deleted');
+    } catch (error) {
+      next(error);
+    }
+  };
