@@ -11,7 +11,7 @@ exports.addNote = async (req, res, next) => {
       // Insert data to collection
       const result = await notesCollection.insertOne(req.body);
       console.log(result);
-      res.status(200).json('Data successfully saved');
+      res.status(200).json('Data successfully saved');  
     } catch (error) {
       next(error);
     }

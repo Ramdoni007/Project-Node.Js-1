@@ -3,6 +3,7 @@ const {MongoClient} = require('mongodb');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3001; 
+const cors = require('cors');
 
 const routes = require('./route')
 const handlerErrors = require('./middlewares/errorHandlers')
@@ -11,6 +12,7 @@ const handlerErrors = require('./middlewares/errorHandlers')
 const url = 'mongodb://localhost:27017';
 // Database Name
 const dbName = 'dinotesDB';
+app.use (cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Connect to Database
 MongoClient.connect(url, (err, client) => {
